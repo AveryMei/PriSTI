@@ -22,7 +22,14 @@ class Guide_diff(nn.Module):
             embedding_dim=config["diffusion_embedding_dim"],
         )
 
-        if config["adj_file"] == 'AQI36':
+        # Added for the MaSTR protocol: load the adjacency from the same export the
+        # masks come from, so the node order is the one they were built against and
+        # a dataset without a branch below is still covered. Only reached when
+        # adj_file carries this prefix, so every original path is untouched.
+        if str(config["adj_file"]).startswith('mastr:'):
+            import numpy as _np
+            self.adj = _np.load(str(config["adj_file"])[len('mastr:'):])['adj']
+        elif config["adj_file"] == 'AQI36':
             self.adj = get_adj_AQI36()
         elif config["adj_file"] == 'metr-la':
             self.adj = get_similarity_metrla(thr=0.1)
