@@ -73,6 +73,12 @@ def main(args):
         config = yaml.safe_load(f)
     config['model']['is_unconditional'] = args.unconditional
     config['model']['target_strategy'] = args.targetstrategy
+    # Overridable from the command line so a long run can be shortened without
+    # editing the yaml, which would leave no record of what was actually run.
+    if args.epochs is not None:
+        config['train']['epochs'] = args.epochs
+    if args.batch_size is not None:
+        config['train']['batch_size'] = args.batch_size
     # Load the adjacency from the export rather than from PriSTI's own copy of the
     # dataset, so the node order is the one the masks were built against.
     config['diffusion']['adj_file'] = 'mastr:' + os.path.abspath(args.npz)
@@ -131,6 +137,7 @@ def main(args):
                       'target_strategy': args.targetstrategy},
             'training': {'epochs': config['train']['epochs'],
                          'batch_size': config['train']['batch_size'],
+                         'config_file': args.config,
                          'training_type': 'baseline'},
             'logging': {'exp_name': 'base_pristi_%s' % name},
         },
@@ -156,6 +163,9 @@ if __name__ == '__main__':
                    choices=['mix', 'random', 'block'])
     p.add_argument('--nsample', type=int, default=20)
     p.add_argument('--num_workers', type=int, default=4)
+    p.add_argument('--epochs', type=int, default=None,
+                   help='overrides the config, recorded in results.yaml')
+    p.add_argument('--batch-size', dest='batch_size', type=int, default=None)
     p.add_argument('--unconditional', action='store_true')
     p.add_argument('--modelfolder', type=str, default='')
     main(p.parse_args())
