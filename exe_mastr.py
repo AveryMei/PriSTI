@@ -159,8 +159,12 @@ if __name__ == '__main__':
     p.add_argument('--config', type=str, default='traffic.yaml')
     p.add_argument('--device', default='cuda:0')
     p.add_argument('--seed', type=int, default=1)
+    # The three behaviours utils.get_block_mask and the loader actually
+    # distinguish. hybrid is what PriSTI uses for air quality, block for traffic,
+    # and random takes get_randmask instead. 'mix' and 'historical' appear in the
+    # original entry scripts but fall through to the block branch.
     p.add_argument('--targetstrategy', type=str, default='block',
-                   choices=['mix', 'random', 'block'])
+                   choices=['block', 'hybrid', 'random'])
     p.add_argument('--nsample', type=int, default=20)
     p.add_argument('--num_workers', type=int, default=4)
     p.add_argument('--epochs', type=int, default=None,
