@@ -98,7 +98,13 @@ def main(args):
         is_interpolate=config['model']['use_guide'], num_workers=args.num_workers,
         target_strategy=args.targetstrategy)
 
-    model = PriSTI_MetrLA(config, args.device).to(args.device)
+    # PriSTI_MetrLA is the generic class: its process_data differs from the AQI-36
+    # one only in taking for_pattern_mask from observed_mask instead of a hist_mask
+    # this loader does not produce. Its target_dim and seq_len default to METR-LA's
+    # 207 and 24, so both are passed from the export rather than left to default.
+    model = PriSTI_MetrLA(config, args.device,
+                          target_dim=int(d['n_features']),
+                          seq_len=int(d['eval_length'])).to(args.device)
     if args.modelfolder == '':
         train(model, config['train'], train_loader, valid_loader=valid_loader,
               foldername=foldername)
